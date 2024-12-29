@@ -2,14 +2,16 @@
 import { ref } from 'vue'
 import { login } from '../api/auth.api';
 import { useRouter } from 'vue-router'
-
+import useLoading from '../composable/useLoading'
 const router = useRouter()
+const { preLoading } = useLoading()
 const onSubmit = async () => {
   const payload = {
     email:email.value,
     password: password.value 
   }
   try {
+    preLoading(true)
     const response = await login(payload)
     if(response.data.success) {
       router.push({path: '/'})
@@ -17,6 +19,8 @@ const onSubmit = async () => {
     
   } catch (error:any) {
     throw new Error(error)
+  } finally {
+    preLoading(false)
   }
   
 }

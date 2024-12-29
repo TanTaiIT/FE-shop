@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import loading from './components/common/loading/loading.vue';
+import Loading from './components/common/loading/loading.vue'
+import { loadingStore } from './store/loadingStore'
+
+const loading = loadingStore()
+
 </script>
 
 <template>
   <div class="w-full h-full">
-    <loading v-if="loading" />
-    <RouterView />
+    <loading v-if="loading.loading" />
+    <router-view />
   </div>
 </template>
 
