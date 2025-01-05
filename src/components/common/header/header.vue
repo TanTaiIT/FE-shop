@@ -9,6 +9,10 @@
           <li class="cursor-pointer" @click="logout">
             <span class="text-lg">Logout</span>
           </li>
+
+          <li class="cursor-pointer" @click="goToAdmin">
+            Admin
+          </li>
         </ul>
       </div>
       <div class="flex items-center gap-10">
@@ -33,5 +37,9 @@ import {useRouter} from 'vue-router'
 const router = useRouter()
 const logout = () => {
   router.push({path: '/login'})  
+}
+
+const goToAdmin = () => {
+  router.push({name: 'admin'})
 }
 </script>

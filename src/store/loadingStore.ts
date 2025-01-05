@@ -5,7 +5,6 @@ export const loadingStore = defineStore('loading', () => {
 
   // Actions
   const setLoading = (value: boolean) => {
-    console.log('value', value)
     loading.value = value
   }
 

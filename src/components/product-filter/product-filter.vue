@@ -1,6 +1,6 @@
 <template>
   <div class="product-filter items-center flex gap-3 bg-gray-300 p-4">
-    <label class="text-white">Sort by: </label>
+    <label class="uppercase">Sort by: </label>
     <div class="tab" @click="sortType(1)" :class="{active: tabActive === 1}">
       Popularity
     </div>

@@ -20,7 +20,6 @@ class Http {
     this.http.interceptors.request.use(
       config => {
         // Do something before request is sent
-        console.log('Request Interceptor', config)
         return config
       },
       error => {

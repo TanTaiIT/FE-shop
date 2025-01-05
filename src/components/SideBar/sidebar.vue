@@ -9,9 +9,7 @@
   </div>
 
     <div class="flex flex-col mt-3 text-lg text-gray-500">
-      <span class="cursor-pointer">Dong ho</span>
-      <span class="cursor-pointer">Quan ao</span>
-      <span class="cursor-pointer">Giay dep</span>
+      <span v-for="item in category" class="cursor-pointer" :key="item._id">{{ item.name }}</span>
     </div>
     <hr class="mt-3 w-[80%]"/>
 
@@ -42,5 +40,33 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
+import { onMounted } from 'vue'
+import { categoryType } from './../SideBar/sideBar.type'
 import star from './../common/star/stars.vue'
+import { useToast } from 'vue-toast-notification'
+import useLoading from '../../composable/useLoading'
+import { getCategories } from './../../api/category.api'
+
+
+const $toast = useToast()
+const { preLoading } = useLoading()
+
+const category = ref<categoryType[]>([])
+onMounted(() => {
+  getCategoriesData()
+})
+
+const getCategoriesData = async () => {
+  try {
+    preLoading(true)
+    const response = await getCategories()
+    category.value = response?.data?.categories || []
+  } catch (error) {
+    $toast.error('Error when get categories')
+  } finally {
+    preLoading(false)
+  }
+}
+
 </script>
