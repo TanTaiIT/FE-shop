@@ -6,6 +6,5 @@ export const getProductData = async() => {
 }
 
 export const addProduct = async(data: any) => {
-  console.log('data', data)
   return await http.post('/products', data)
 }

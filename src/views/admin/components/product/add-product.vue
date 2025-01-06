@@ -25,6 +25,7 @@
             <div @click="onUploadImage()"
               class="rounded-md border-2 border-gray-300 flex items-center justify-center cursor-pointer w-[80px] h-[80px] border-dashed">
               <span class="text-2xl">+</span>
+              
             </div>
           </div>
 
@@ -96,24 +97,23 @@ const { preLoading } = useLoading()
 const currentImage = ref([])
 const editorData = ref('<p>Content of the editor111.</p>')
 const categories = ref<CategoryType[]>([])
+const uploadFile = ref([])
 const filter = ref({
   name: '',
   price: '',
   Stock: '',
   ratings: '',
   category: '',
-  description: '',
+  description: '12345',
 })
-const files = ref(null)
 const emit = defineEmits(['hide'])
 
 const readUrl = (event: any) => {
   if (event.target.files[0]) {
+    uploadFile.value = event.target.files[0]
+    console.log('upload', uploadFile.value)
     const reader = new FileReader()
     reader.onload = (e) => {
-      console.log('e', e)
-      // @ts-ignore
-      files.value = e
       // @ts-ignore
       currentImage.value = [...currentImage.value, e.target?.result]
     }
@@ -142,12 +142,6 @@ const onHide = () => {
   emit('hide')
 }
 
-const onConfirm = () => {
-  console.log('config', files.value)
-
-  // onHide()
-}
-
 const onUploadImage = () => {
   const file = document.getElementById('upload') as HTMLInputElement
   file.click()
@@ -157,17 +151,18 @@ const onSubmit = async (e: any) => {
   e.preventDefault()
   try {
     preLoading(true)
-    const formData = new FormData()
-    formData.append("name", filter.value.name)
-    formData.append('price', filter.value.price)
-    formData.append('Stock', filter.value.Stock)
-    formData.append('ratings', filter.value.ratings)
-    formData.append('category', filter.value.category)
-    formData.append('description', filter.value.description)
+    const payload = new FormData()
+    payload.append("name", filter.value.name)
+    payload.append('price', filter.value.price)
+    payload.append('Stock', filter.value.Stock)
+    payload.append('ratings', filter.value.ratings)
+    payload.append('category', filter.value.category)
+    payload.append('description', filter.value.description)
+   
     // @ts-ignore
-    formData.append('images', files.value)
-    await addProduct(formData)
-  } catch (error) {
+    payload.append('images', uploadFile.value)
+    await addProduct(payload)
+  } catch (error: any) {
     $toast.error('Error when add product')
   } finally {
     preLoading(false)

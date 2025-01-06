@@ -4,6 +4,7 @@ const HEADER = {
   'Content-Type': 'application/json',
   'Authorization': 'Bearer ' + localStorage.getItem('token'),
   'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'Access-Control-Allow-Methods, Access-Control-Allow-Origin, Origin, Accept, Content-Type',
 }
 
 class Http {
@@ -12,14 +13,17 @@ class Http {
   constructor() {
     this.http = axios.create({
       baseURL: 'http://localhost:3000',
-      timeout: 1000,
+      timeout: 120000,
       headers: HEADER
     })
 
     // Request interceptor
     this.http.interceptors.request.use(
       config => {
-        // Do something before request is sent
+        // Check if the payload is formData
+        if (config.data instanceof FormData) {
+          config.headers['Content-Type'] = 'multipart/form-data'
+        }
         return config
       },
       error => {
@@ -27,6 +31,7 @@ class Http {
         return Promise.reject(error)
       }
     )
+
   }
 
   get(url: string, config = {}) {
