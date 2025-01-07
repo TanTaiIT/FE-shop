@@ -1,6 +1,6 @@
 <template>
   <Modal :visible="props.visible" size="xl" title="Add Product" @hide="onHide" @show="onLoadForm">
-    <form @submit="onSubmit">
+    <form>
       <div class="form-control">
         <label class="font-bold">Title</label>
         <input v-model="filter.name" type="text" placeholder="Enter title"
@@ -9,13 +9,13 @@
 
       <div class="form-control">
         <label for="" class="font-bold">Description</label>
-        <ckeditor v-model="filter.description" />
+        <ckeditor v-model="filter.description" @input="hanleChangeInput" />
       </div>
 
       <div class="form-control">
         <div class="flex items-center justify-center w-full h-[150px] border-dashed border-2 rounded-md">
           <span v-if="currentImage.length === 0" @click="onUploadImage()"
-            class="text-black shadow-lg border-1 bg-white rounded-full p-2 cursor-pointer hover:bg-gray-200 transition-all transition-">Upload
+            class="text-black shadow-lg border-1 bg-gray-100 rounded-full p-2 cursor-pointer text-sm hover:bg-gray-200 transition-all">Upload
             new</span>
           <div v-else class="flex items-start gap-5 mr-auto">
             <div class="list-image flex items-center gap-3">
@@ -58,10 +58,7 @@
           class="border border-gray-300 p-2 rounded-md w-full" />
       </div>
 
-      <div class="footer">
-        <button type="submit">Save</button>
-      </div>
-      <!-- <btn-group @save="onConfirm" @hide="onHide" :options="btn_options" /> -->
+      <btn-group @save="onConfirm" @hide="onHide" :options="btn_options" />
     </form>
 
 
@@ -73,15 +70,16 @@
 import { defineProps, ref } from 'vue'
 // @ts-ignore
 import Modal from 'Components/common/modal/modal.vue'
+import { useToast } from 'vue-toast-notification'
+import { addProduct, updateProduct } from '../../../../api/product.api'
+import useLoading from '../../../../composable/useLoading'
+import { getCategories } from '../../../../api/category.api'
 // @ts-ignore
 import ckeditor from 'Components/common/ckeditor/ckeditor.vue'
-import useLoading from '../../../../composable/useLoading'
-import { useToast } from 'vue-toast-notification'
-import { getCategories } from '../../../../api/category.api'
 import { CategoryType } from '../../../../types/categories.type'
-import { addProduct } from '../../../../api/product.api'
 // @ts-ignore
 import BtnGroup from 'Components/common/btn-group/btn-group.vue'
+import { productStore } from '../../../../store/productStore'
 
 const btn_options = {
   save: true,
@@ -95,23 +93,26 @@ const props = defineProps<{
 const $toast = useToast()
 const { preLoading } = useLoading()
 const currentImage = ref([])
-const editorData = ref('<p>Content of the editor111.</p>')
 const categories = ref<CategoryType[]>([])
 const uploadFile = ref([])
+const products = productStore()
+const formAction = ref('add')
+
 const filter = ref({
+  _id: '',
   name: '',
-  price: '',
-  Stock: '',
-  ratings: '',
+  price: 0,
+  Stock: 0,
+  ratings: 0,
   category: '',
-  description: '12345',
+  description: '',
+  images: []
 })
-const emit = defineEmits(['hide'])
+const emit = defineEmits(['hide', 'save'])
 
 const readUrl = (event: any) => {
   if (event.target.files[0]) {
     uploadFile.value = event.target.files[0]
-    console.log('upload', uploadFile.value)
     const reader = new FileReader()
     reader.onload = (e) => {
       // @ts-ignore
@@ -134,7 +135,15 @@ const getCategoryData = async () => {
 }
 
 const onLoadForm = () => {
-  currentImage.value = []
+  formAction.value = 'edit'
+  if(formAction.value !== 'edit') {
+    currentImage.value = []
+  } else {
+    filter.value = Object.assign(filter.value, products.products.data)
+    currentImage.value = filter.value.images
+  } 
+  
+  console.log('curent imgage', currentImage.value)
   getCategoryData()
 }
 
@@ -147,26 +156,35 @@ const onUploadImage = () => {
   file.click()
 }
 
-const onSubmit = async (e: any) => {
-  e.preventDefault()
+const onConfirm = async () => {
   try {
     preLoading(true)
     const payload = new FormData()
     payload.append("name", filter.value.name)
-    payload.append('price', filter.value.price)
-    payload.append('Stock', filter.value.Stock)
-    payload.append('ratings', filter.value.ratings)
     payload.append('category', filter.value.category)
+    payload.append('price', filter.value.price.toString())
+    payload.append('Stock', filter.value.Stock.toString())
     payload.append('description', filter.value.description)
-   
+    payload.append('ratings', filter.value.ratings.toString())
     // @ts-ignore
     payload.append('images', uploadFile.value)
-    await addProduct(payload)
+    console.log('upload file', uploadFile.value)
+    if(formAction.value === 'edit') {
+      payload.append('id', filter.value._id)
+      await updateProduct(payload)
+    } else {
+      await addProduct(payload)
+    }
+    emit('save')
   } catch (error: any) {
-    $toast.error('Error when add product')
+    $toast.error(error.message)
   } finally {
     preLoading(false)
   }
+}
+
+const hanleChangeInput = (event: string) => {
+  filter.value.description = event
 }
 </script>
 

@@ -9,7 +9,8 @@
     "paths": {
       "@/*": ["src/*"],
       "Components/*": ["src/components/*"],
-      "~utils/*": ["src/utils/*"]
+      "~utils/*": ["src/utils/*"],
+      "Api/*": ["src/api/*"]
     }
   }
 }

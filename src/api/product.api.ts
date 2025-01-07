@@ -8,3 +8,11 @@ export const getProductData = async() => {
 export const addProduct = async(data: any) => {
   return await http.post('/products', data)
 }
+
+export const deleteProduct = async(payload: string) => {
+  return await http.delete('/products', { data: { id: payload } })
+}
+
+export const updateProduct = async(data: any) => {
+  return await http.put('/products', data)
+}

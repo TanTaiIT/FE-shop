@@ -1,6 +1,6 @@
 <template>
   <div class="ck-container">
-    <ckeditor v-if="editor" v-model="editor" :editor="editor" :config="config" tag-name="text-area"
+    <ckeditor v-if="editor" v-model="editor" :editor="editor" :config="config" tag-name="text-area" @input="input"
       class="ck-editor-config" />
   </div>
 </template>
@@ -13,8 +13,14 @@ const props = defineProps({
   data: {
     type: String,
     default: ''
+  },
+  value: {
+    type: String,
+    default: ''
   }
 })
+
+const emit = defineEmits(['input'])
 
 const cloud = useCKEditorCloud({
   version: '44.1.0',
@@ -27,6 +33,10 @@ const editor = computed(() => {
   }
   return cloud.data.value.CKEditor.ClassicEditor
 });
+
+const input = (data) => {
+  emit('input', data)
+}
 
 const config = computed(() => {
   if (!cloud.data.value) {
